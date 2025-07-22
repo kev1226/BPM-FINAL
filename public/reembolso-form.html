@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario de Reembolso</title>
+</head>
+<body>
+  <h2>Formulario de Reembolso</h2>
+
+  <form id="reembolsoForm" enctype="multipart/form-data">
+    <!-- Datos ocultos del usuario que vienen del login -->
+    <input type="hidden" name="cedula" value="{{cedula}}" />
+    <input type="hidden" name="nombres" value="{{nombres}}" />
+    <input type="hidden" name="apellidos" value="{{apellidos}}" />
+    <input type="hidden" name="correo" value="{{correo}}" />
+    <input type="hidden" name="area" value="{{area}}" />
+    <input type="hidden" name="banco" value="{{banco}}" />
+    <input type="hidden" name="cuenta_bancaria" value="{{cuenta_bancaria}}" />
+
+    <!-- Datos ingresados por el usuario -->
+    <label for="pais">País:</label>
+    <select name="pais" required>
+      <option value="EC">Ecuador</option>
+      <option value="US">Estados Unidos</option>
+      <option value="ES">España</option>
+      <option value="AR">Argentina</option>
+      <option value="CO">Colombia</option>
+      <option value="OTRO">Otro</option>
+    </select><br><br>
+
+    <label for="numero_factura">Número de Factura:</label>
+    <input type="text" name="numero_factura" required /><br><br>
+
+    <label for="fecha_factura">Fecha de Factura:</label>
+    <input type="date" name="fecha_factura" required /><br><br>
+
+    <label for="monto">Monto:</label>
+    <input type="number" step="0.01" name="monto" required /><br><br>
+
+    <label for="ruc">RUC (opcional):</label>
+    <input type="text" name="ruc" /><br><br>
+
+    <label for="archivo">Subir Factura (.pdf o imagen):</label>
+    <input type="file" name="archivo" accept=".pdf,image/*" required /><br><br>
+
+    <button type="submit">Enviar Solicitud</button>
+  </form>
+
+  <div id="mensaje"></div>
+
+  <script>
+    document.getElementById('reembolsoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Agregar la fecha actual
+      formData.append('fecha_envio_solicitud', new Date().toISOString());
+
+      try {
+        const res = await fetch('http://localhost:3003/reembolso/solicitar', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+        document.getElementById('mensaje').innerText = data.message ?? 'Solicitud enviada.';
+      } catch (err) {
+        document.getElementById('mensaje').innerText = 'Error al enviar solicitud.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser'; // ✅ Import necesario
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -16,6 +18,8 @@ async function bootstrap() {
     origin: '*',
     methods: ['GET', 'POST'], // (no METHODS en mayúsculas)
   });
+
+  app.use('/app', express.static(join(__dirname, '..', 'public')));
 
   await app.listen(process.env.PORT ?? 3003);
 }

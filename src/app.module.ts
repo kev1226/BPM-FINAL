@@ -7,7 +7,9 @@ import { OcrModule } from './ocr/ocr.module';
 import { OcrService } from './ocr/ocr.service';
 import { iniciarOCRWorker } from './ocr/ocr.worker';
 import { User } from './auth/entities/user.entity';
-import { FinanzasModule } from './finanzas/finanzas.module';
+import { iniciarWorkerVerificarPresupuesto } from './finanzas/registroContable.service';
+import { iniciarWorkerProcesarPago } from './finanzas/ordenPago.service';
+import { iniciarWorkerLoginInterno } from './auth/workers/login.worker';
 
 @Module({
   imports: [
@@ -26,13 +28,22 @@ import { FinanzasModule } from './finanzas/finanzas.module';
     AuthModule,
     ReembolsoModule,
     OcrModule,
-    FinanzasModule,
   ],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly ocrService: OcrService) {}
 
   async onModuleInit() {
+    // 🔁 Levantar OCR
     await iniciarOCRWorker(this.ocrService);
+
+    // 🔁 Levantar workers de Finanzas
+    await iniciarWorkerVerificarPresupuesto();
+
+    // 🔁 Levantar worker de Procesar Pago
+    await iniciarWorkerProcesarPago();
+
+    // 🔁 Levantar worker de Login
+    await iniciarWorkerLoginInterno();
   }
 }

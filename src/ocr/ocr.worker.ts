@@ -27,6 +27,7 @@ export async function iniciarOCRWorker(ocrService: OcrService) {
 
       // ✅ Limpiar nulos para que job.complete no falle
       const limpio = {
+        texto_completo: resultado.texto_completo ?? '',
         numero_factura_ocr: resultado.numero_factura ?? '',
         ruc_ocr: resultado.ruc ?? '',
         fecha_factura_ocr: resultado.fecha_emision

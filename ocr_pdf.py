@@ -31,7 +31,23 @@ def ocr_pdf_pymupdf(path):
     return full_text
 
 
-def extraer_datos(texto):
+# Solo devuelve el texto OCR del PDF
+def extraerDatosDesdePDF(path):
+    pdf_file = fitz.open(path)
+    full_text = ""
+
+    for page_number in range(len(pdf_file)):
+        page = pdf_file.load_page(page_number)
+        pix = page.get_pixmap(dpi=400)
+        image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        buf = io.BytesIO()
+        image.save(buf, format="JPEG")
+        vision_image = vision.Image(content=buf.getvalue())
+        response = client.document_text_detection(image=vision_image)
+        full_text += response.full_text_annotation.text + "\n"
+
+    return full_text
+
     factura = re.search(
         r"(?:Factura Número|Nº Autorización|No[.:]?)\D*(\d{3}-\d{3}-\d+)", texto
     )
@@ -57,5 +73,5 @@ if __name__ == "__main__":
 
     path = sys.argv[1]
     texto = ocr_pdf_pymupdf(path)
-    datos = extraer_datos(texto)
-    print(json.dumps(datos))  # 👈 Devuelve resultado como JSON para NestJS
+
+    print(texto)  # 👈 Devuelve resultado como JSON para NestJS

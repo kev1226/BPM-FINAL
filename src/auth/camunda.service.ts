@@ -19,17 +19,18 @@ export class CamundaService {
 
   async iniciarProcesoReembolso(variables: Record<string, any>) {
     try {
-      const zeebeGrpc = this.camunda.getZeebeGrpcApiClient(); // ✅ usa gRPC que sí está disponible
+      const zeebe = this.camunda.getZeebeGrpcApiClient();
 
-      const result = await zeebeGrpc.createProcessInstance({
-        bpmnProcessId: this.config.getOrThrow('CAMUNDA_PROCESS_KEY'),
+      await zeebe.publishMessage({
+        name: 'Inicio_Externo',
+        correlationKey: 'sin-correlation',
+        timeToLive: 10000,
         variables,
       });
 
       this.logger.log(
-        `✅ Proceso iniciado correctamente: ${result.processInstanceKey}`,
+        `✅ Mensaje publicado correctamente para iniciar proceso con cédula ${variables.cedula}`,
       );
-      return result;
     } catch (error) {
       this.logger.error('❌ Error al iniciar proceso en Camunda', error);
       throw new Error('No se pudo iniciar el proceso en Camunda.');
